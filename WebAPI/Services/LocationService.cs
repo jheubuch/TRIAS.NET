@@ -1,4 +1,5 @@
 ﻿using TRIAS.NET.Models;
+using TRIAS.NET.Models.Models.Enums;
 using TRIAS.NET.Models.Trias;
 
 namespace TRIAS.NET.WebAPI.Services;
@@ -22,7 +23,7 @@ public class LocationService : TriasHttpService<LocationInformationRequestStruct
             {
                 LocationName = query
             }
-        }.WithFilters(locationTypeFilter);
+        }.WithFilter(locationTypeFilter);
         var response = await Request(locationRequest, cancellationToken);
         return response.LocationResult.Select(l => l.ToLocation()).ToList();
     }
@@ -39,7 +40,7 @@ public class LocationService : TriasHttpService<LocationInformationRequestStruct
                     Longitude = coordinates.Longitude
                 }
             }
-        }.WithFilters(locationTypeFilter);
+        }.WithFilter(locationTypeFilter);
         var response = await Request(locationRequest, cancellationToken);
         return response.LocationResult.Select(l => l.ToLocation()).ToList();
     }
