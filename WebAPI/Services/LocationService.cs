@@ -4,8 +4,8 @@ using TRIAS.NET.Models.Trias;
 namespace TRIAS.NET.WebAPI.Services;
 public interface ILocationService
 {
-    public Task<List<NET.Models.Location>> Search(string query, CancellationToken cancellationToken);
-    public Task<List<NET.Models.Location>> Locate(Coordinates coordinates, CancellationToken cancellationToken);
+    public Task<List<NET.Models.Location>> Search(string query, List<LocationType> locationTypeFilter, CancellationToken cancellationToken);
+    public Task<List<NET.Models.Location>> Locate(Coordinates coordinates, List<LocationType> locationTypeFilter, CancellationToken cancellationToken);
 }
 
 public class LocationService : TriasHttpService<LocationInformationRequestStructure, LocationInformationResponseStructure>, ILocationService
@@ -14,7 +14,7 @@ public class LocationService : TriasHttpService<LocationInformationRequestStruct
     {
     }
 
-    public async Task<List<NET.Models.Location>> Search(string query, CancellationToken cancellationToken)
+    public async Task<List<NET.Models.Location>> Search(string query, List<LocationType> locationTypeFilter, CancellationToken cancellationToken)
     {
         var locationRequest = new LocationInformationRequestStructure
         {
@@ -22,12 +22,12 @@ public class LocationService : TriasHttpService<LocationInformationRequestStruct
             {
                 LocationName = query
             }
-        };
+        }.WithFilters(locationTypeFilter);
         var response = await Request(locationRequest, cancellationToken);
         return response.LocationResult.Select(l => l.ToLocation()).ToList();
     }
 
-    public async Task<List<NET.Models.Location>> Locate(Coordinates coordinates, CancellationToken cancellationToken)
+    public async Task<List<NET.Models.Location>> Locate(Coordinates coordinates, List<LocationType> locationTypeFilter, CancellationToken cancellationToken)
     {
         var locationRequest = new LocationInformationRequestStructure
         {
@@ -39,7 +39,7 @@ public class LocationService : TriasHttpService<LocationInformationRequestStruct
                     Longitude = coordinates.Longitude
                 }
             }
-        };
+        }.WithFilters(locationTypeFilter);
         var response = await Request(locationRequest, cancellationToken);
         return response.LocationResult.Select(l => l.ToLocation()).ToList();
     }
