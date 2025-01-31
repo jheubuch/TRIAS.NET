@@ -11,6 +11,7 @@ builder.Services.AddHttpClient("TriasClient", httpClient =>
     httpClient.DefaultRequestHeaders.Add(HeaderNames.UserAgent, "TRIAS.NET/0.0.1");
 });
 builder.Services.AddTransient<ILocationService, LocationService>();
+builder.Services.AddTransient<IBoardService, BoardService>();
 
 var app = builder.Build();
 

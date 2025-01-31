@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Serialization;
+using TRIAS.NET.Models.Models.Enums;
 using TRIAS.NET.Models.Trias;
 
 namespace TRIAS.NET.Models;
@@ -11,16 +11,6 @@ public record class Location
     public string Name { get; set; }
     public string LocationName { get; set; }
     public string LocationRef { get; set; }
-}
-
-[JsonConverter(typeof(JsonStringEnumConverter<LocationType>))]
-public enum LocationType
-{
-    StopPoint,
-    StopPlace,
-    Locality,
-    PointOfInterest,
-    Address
 }
 
 public record class Coordinates
@@ -76,26 +66,13 @@ public static class LocationExtensions
         return location;
     }
 
-    public static LocationTypeEnumeration FromLocationType(this LocationType locationType)
-    {
-        return locationType switch
-        {
-            LocationType.StopPoint => LocationTypeEnumeration.stop,
-            LocationType.StopPlace => LocationTypeEnumeration.stop,
-            LocationType.Locality => LocationTypeEnumeration.locality,
-            LocationType.PointOfInterest => LocationTypeEnumeration.poi,
-            LocationType.Address => LocationTypeEnumeration.address,
-            _ => LocationTypeEnumeration.stop
-        };
-    }
-
-    public static LocationInformationRequestStructure WithFilters(this LocationInformationRequestStructure structure, List<LocationType> locationTypeFilter)
+    public static LocationInformationRequestStructure WithFilter(this LocationInformationRequestStructure structure, List<LocationType> locationTypeFilter)
     {
         if (structure.Restrictions == null)
         {
             structure.Restrictions = new LocationParamStructure();
         }
-        structure.Restrictions.Type = locationTypeFilter.Select(FromLocationType).ToList();
+        structure.Restrictions.Type = locationTypeFilter.Select(t => t.FromLocationType()).ToList();
         return structure;
     }
 }

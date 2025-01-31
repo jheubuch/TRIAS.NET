@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TRIAS.NET.Models;
+using TRIAS.NET.Models.Models.Enums;
 using TRIAS.NET.WebAPI.Services;
 
 namespace TRIAS.NET.WebAPI.Controllers;
