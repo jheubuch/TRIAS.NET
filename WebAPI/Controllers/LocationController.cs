@@ -9,13 +9,13 @@ namespace TRIAS.NET.WebAPI.Controllers;
 [Route("api/[controller]")]
 public class LocationController(ILogger<LocationController> logger, ILocationService locationService) : ControllerBase
 {
-    [HttpGet("search/{query}")]
+    [HttpGet("Search/{query}")]
     public async Task<List<Location>> Search([FromRoute] string query, [FromQuery] List<LocationType> filterTypes, CancellationToken cancellationToken)
     {
         return await locationService.Search(query, filterTypes, cancellationToken);
     }
 
-    [HttpGet("locate/{latitude}/{longitude}")]
+    [HttpGet("Locate/{latitude}/{longitude}")]
     public async Task<List<Location>> Locate([FromRoute] decimal latitude, [FromRoute] decimal longitude, [FromQuery] List<LocationType> filterTypes, CancellationToken cancellationToken)
     {
         return await locationService.Locate(new Coordinates { Latitude = latitude, Longitude = longitude }, filterTypes, cancellationToken);

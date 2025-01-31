@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Xml.Serialization;
 using TRIAS.NET.Models.Trias;
+using TRIAS.NET.WebAPI.Helper;
 
 namespace TRIAS.NET.WebAPI.Services;
 
@@ -23,7 +24,7 @@ public abstract class TriasHttpService<TRequest, TResponse>
         var response = await SendTriasMessage(message, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
-            throw new Exception(await response.Content.ReadAsStringAsync(cancellationToken));
+            throw new TriasException(((int)response.StatusCode), await response.Content.ReadAsStringAsync(cancellationToken));
         }
         var result = await response.Content.ReadAsStringAsync();
         var resultStream = new MemoryStream(Encoding.UTF8.GetBytes(result));

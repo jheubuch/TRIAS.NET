@@ -10,6 +10,7 @@ namespace TRIAS.NET.Models;
 public record class BoardItem
 {
     public string JourneyRef { get; set; }
+    public string OperatingDayRef { get; set; }
     public string Line { get; set; }
     public string Location { get; set; }
     public DateTime ScheduledTime { get; set; }
@@ -62,6 +63,7 @@ public static class BoardExtensions
         return new BoardItem
         {
             JourneyRef = result.StopEvent.Service.JourneyRef.Value,
+            OperatingDayRef = result.StopEvent.Service.OperatingDayRef.Value,
             Line = currentServiceSection.PublishedLineName.First().Text,
             Location = location,
             ScheduledTime = scheduledTime,
