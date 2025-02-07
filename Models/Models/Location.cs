@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using TRIAS.NET.Models.Models.Enums;
 using TRIAS.NET.Models.Trias;
@@ -17,6 +18,12 @@ public record class Coordinates
 {
     public decimal Latitude { get; set; }
     public decimal Longitude { get; set; }
+}
+
+public record class SearchLocation
+{
+    public LocationType LocationType { get; set; }
+    public string LocationRef { get; set; }
 }
 
 public static class LocationExtensions
@@ -64,6 +71,19 @@ public static class LocationExtensions
             location.LocationRef = address.AddressCode;
         }
         return location;
+    }
+
+    public static object ToLocationRefStructure(this SearchLocation searchLocation)
+    {
+        return searchLocation.LocationType switch
+        {
+            LocationType.StopPoint => new StopPointRefStructure { Value = searchLocation.LocationRef },
+            LocationType.StopPlace => new StopPlaceRefStructure { Value = searchLocation.LocationRef },
+            LocationType.Locality => new LocalityRefStructure { Value = searchLocation.LocationRef },
+            LocationType.PointOfInterest => new PointOfInterestRefStructure { Value = searchLocation.LocationRef },
+            LocationType.Address => new AddressRefStructure { Value = searchLocation.LocationRef },
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 
     public static LocationInformationRequestStructure WithFilter(this LocationInformationRequestStructure structure, List<LocationType> locationTypeFilter)

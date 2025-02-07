@@ -13,9 +13,19 @@ builder.Services.AddHttpClient("TriasClient", httpClient =>
     httpClient.BaseAddress = new Uri(builder.Configuration.GetValue<string>("TRIAS.NET:Endpoint") ?? "");
     httpClient.DefaultRequestHeaders.Add(HeaderNames.UserAgent, "TRIAS.NET/0.0.1");
 });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+            policyBuilder => policyBuilder.AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowAnyOrigin()
+                .SetIsOriginAllowed(_ => true)
+        );
+});
 builder.Services.AddTransient<ILocationService, LocationService>();
 builder.Services.AddTransient<IBoardService, BoardService>();
 builder.Services.AddTransient<IJourneyService, JourneyService>();
+builder.Services.AddTransient<ITripService, TripService>();
 
 var app = builder.Build();
 
@@ -25,6 +35,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
+    app.UseCors("AllowAllOrigins");
 }
 
 app.UseHttpsRedirection();
