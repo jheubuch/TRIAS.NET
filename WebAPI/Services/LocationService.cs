@@ -25,7 +25,7 @@ public class LocationService : TriasHttpService<LocationInformationRequestStruct
             }
         }.WithFilter(locationTypeFilter);
         var response = await Request(locationRequest, cancellationToken);
-        return response.LocationResult.Select(l => l.ToLocation()).ToList();
+        return response.LocationResult.OrderByDescending(r => r.Probability).Select(l => l.ToLocation()).ToList();
     }
 
     public async Task<List<NET.Models.Location>> Locate(Coordinates coordinates, List<LocationType> locationTypeFilter, CancellationToken cancellationToken)
@@ -42,7 +42,7 @@ public class LocationService : TriasHttpService<LocationInformationRequestStruct
             }
         }.WithFilter(locationTypeFilter);
         var response = await Request(locationRequest, cancellationToken);
-        return response.LocationResult.Select(l => l.ToLocation()).ToList();
+        return response.LocationResult.OrderByDescending(r => r.Probability).Select(l => l.ToLocation()).ToList();
     }
 }
 
