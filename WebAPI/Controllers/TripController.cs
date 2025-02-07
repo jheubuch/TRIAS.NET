@@ -16,8 +16,8 @@ public class TripController
     }
 
     [HttpPost]
-    public async Task PlanTrip([FromBody] TripPlanRequest tripPlanRequest)
+    public async Task<List<Trip>> PlanTrip([FromBody] TripPlanRequest tripPlanRequest)
     {
-        await _tripService.PlanTrip(tripPlanRequest, CancellationToken.None);
+        return await _tripService.PlanTrip(tripPlanRequest, CancellationToken.None);
     }
 }

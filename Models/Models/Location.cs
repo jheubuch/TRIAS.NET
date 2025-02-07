@@ -20,7 +20,7 @@ public record class Coordinates
     public decimal Longitude { get; set; }
 }
 
-public record class SearchLocation
+public record class LocationReference
 {
     public LocationType LocationType { get; set; }
     public string LocationRef { get; set; }
@@ -73,7 +73,43 @@ public static class LocationExtensions
         return location;
     }
 
-    public static object ToLocationRefStructure(this SearchLocation searchLocation)
+    public static Location ToLocation(this LocationRefStructure locationRefStructure)
+    {
+        var location = new Location();
+        var item = locationRefStructure.Item;
+        location.LocationName = locationRefStructure.LocationName.First().Text;
+        if (item is StopPointRefStructure stopPoint)
+        {
+            location.LocationType = LocationType.StopPoint;
+            location.Name = stopPoint.Value;
+        }
+        else if (item is StopPlaceRefStructure stopPlace)
+        {
+            location.LocationType = LocationType.StopPlace;
+            location.LocationRef = stopPlace.Value;
+        }
+        else if (item is LocalityRefStructure locality)
+        {
+            location.LocationType = LocationType.Locality;
+            location.LocationRef = locality.Value;
+        }
+        else if (item is PointOfInterestRefStructure pointOfInterest)
+        {
+            location.LocationType = LocationType.PointOfInterest;
+            location.LocationRef = pointOfInterest.Value;
+        }
+        else if (item is AddressRefStructure address)
+        {
+            location.LocationType = LocationType.Address;
+            location.LocationRef = address.Value;
+        } else
+        {
+            throw new ArgumentOutOfRangeException("Invalid location ref");
+        }
+        return location;
+    }
+
+    public static object ToLocationRefStructure(this LocationReference searchLocation)
     {
         return searchLocation.LocationType switch
         {
