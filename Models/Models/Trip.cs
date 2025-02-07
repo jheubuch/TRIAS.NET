@@ -12,17 +12,42 @@ public record class TripPlanRequest
 {
     public LocationReference Origin { get; set; }
     public LocationReference Destination { get; set; }
-    public List<LocationReference> ViaStops { get; set; }
-    public List<LocationReference> NotViaStops { get; set; }
-    public List<LocationReference> NoChangeAtStops { get; set; }
-    public TripPlanParams Params { get; set; }
+    public DateTime? DepartingFrom { get; set; } = DateTime.Now;
+    public DateTime? ArrivingAt { get; set; } = null;
+    public List<LocationReference> ViaStops { get; set; } = null;
+    public List<LocationReference> NotViaStops { get; set; } = null;
+    public List<LocationReference> NoChangeAtStops { get; set; } = null;
+    public bool IncludeIntermediateStops { get; set; } = true;
+    public TripPlanParams Params { get; set; } = new TripPlanParams();
+    public TripPlanAlgorithm Algorithm { get; set; } = TripPlanAlgorithm.Fastest;
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter<TripPlanAlgorithm>))]
+public enum TripPlanAlgorithm
+{
+    Fastest,
+    MinChanges,
+    LeastWalking,
+    LeastCost
 }
 
 public record class TripPlanParams
 {
-    public List<TransportType> TransportFilter { get; set; }
-    public bool IgnoreRealtime { get; set; }
-    public int? InterchangeLimit { get; set; }
+    public List<TransportType> TransportFilter { get; set; } = null;
+    public bool IgnoreRealtime { get; set; } = false;
+    public int? InterchangeLimit { get; set; } = null;
+    public bool BikeTransport { get; set; } = false;
+    public AccessibilityParams AccessibilityParams { get; set; } = new AccessibilityParams();
+}
+
+public record class AccessibilityParams
+{
+    public bool NoSingleStep { get; set; } = false;
+    public bool NoStairs { get; set; } = false;
+    public bool NoEscalators { get; set; } = false;
+    public bool NoElevators { get; set; } = false;
+    public bool NoRamp { get; set; } = false;
+    public bool LevelEntrance { get; set; } = false;
 }
 
 public record class Trip
@@ -171,6 +196,18 @@ public static class TripExtensions
             Name = intermediateStop.StopPointName.First().Text,
             LocationRef = intermediateStop.StopPointRef.Value,
             DemandStop = intermediateStop.DemandStop
+        };
+    }
+
+    public static AlgorithmTypeEnumeration ToAlgorithmTypeEnumeration(this TripPlanAlgorithm algorithm)
+    {
+        return algorithm switch
+        {
+            TripPlanAlgorithm.Fastest => AlgorithmTypeEnumeration.fastest,
+            TripPlanAlgorithm.MinChanges => AlgorithmTypeEnumeration.minChanges,
+            TripPlanAlgorithm.LeastWalking => AlgorithmTypeEnumeration.leastWalking,
+            TripPlanAlgorithm.LeastCost => AlgorithmTypeEnumeration.leastCost,
+            _ => throw new ArgumentOutOfRangeException("Invalid algorithm type")
         };
     }
 }

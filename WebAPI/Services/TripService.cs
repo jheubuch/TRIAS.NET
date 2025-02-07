@@ -20,20 +20,37 @@ public class TripService : TriasHttpService<TripRequestStructure, TripResponseSt
 
     public async Task<List<Trip>> PlanTrip(TripPlanRequest tripPlanRequest, CancellationToken cancellationToken)
     {
+        if (!(tripPlanRequest.DepartingFrom == null ^ tripPlanRequest.ArrivingAt == null))
+        {
+            throw new TriasException(400, "Either departure or arrival has to be specified.");
+        }
+
         var tripRequest = new TripRequestStructure
         {
-            Origin = new List<LocationContextStructure> { 
-                new LocationContextStructure { 
-                    Item = new LocationRefStructure { Item = tripPlanRequest.Origin.ToLocationRefStructure() }, 
-                    DepArrTime = DateTime.Now 
+            Origin = new List<LocationContextStructure>
+            { 
+                new LocationContextStructure 
+                { 
+                    Item = new LocationRefStructure { Item = tripPlanRequest.Origin.ToLocationRefStructure() }
                 } 
             },
-            Destination = new List<LocationContextStructure> { 
-                new LocationContextStructure { 
-                    Item = new LocationRefStructure { Item = tripPlanRequest.Destination.ToLocationRefStructure() } 
+            Destination = new List<LocationContextStructure> 
+            { 
+                new LocationContextStructure 
+                { 
+                    Item = new LocationRefStructure { Item = tripPlanRequest.Destination.ToLocationRefStructure() }
                 } 
             }
         };
+
+        if (tripPlanRequest.DepartingFrom != null)
+        {
+            tripRequest.Origin.First().DepArrTime = (DateTime) tripPlanRequest.DepartingFrom;
+        } 
+        else if (tripPlanRequest.ArrivingAt != null)
+        {
+            tripRequest.Destination.First().DepArrTime = (DateTime) tripPlanRequest.ArrivingAt;
+        }
 
         tripRequest.Via = tripPlanRequest.ViaStops?.Select(via =>
         {
@@ -63,14 +80,20 @@ public class TripService : TriasHttpService<TripRequestStructure, TripResponseSt
             {
                 IgnoreRealtimeData = tripPlanRequest.Params.IgnoreRealtime,
                 InterchangeLimit = tripPlanRequest.Params.InterchangeLimit?.ToString() ?? null,
-                PtModeFilter = new PtModeFilterStructure
+                PtModeFilter = tripPlanRequest.Params.TransportFilter == null ? null : new PtModeFilterStructure
                 {
                     PtMode = tripPlanRequest.Params.TransportFilter?.Select(t => t.ToPtModesEnumeration()).ToList(),
                     Exclude = false
                 },
-                LevelEntrance = false,
-                BikeTransport = false,
-                IncludeIntermediateStops = true
+                LevelEntrance = tripPlanRequest.Params.AccessibilityParams.LevelEntrance,
+                NoSingleStep = tripPlanRequest.Params.AccessibilityParams.NoSingleStep,
+                NoStairs = tripPlanRequest.Params.AccessibilityParams.NoStairs,
+                NoEscalator = tripPlanRequest.Params.AccessibilityParams.NoEscalators,
+                NoElevator = tripPlanRequest.Params.AccessibilityParams.NoElevators,
+                NoRamp = tripPlanRequest.Params.AccessibilityParams.NoRamp,
+                BikeTransport = tripPlanRequest.Params.BikeTransport,
+                IncludeIntermediateStops = tripPlanRequest.IncludeIntermediateStops,
+                AlgorithmType = tripPlanRequest.Algorithm.ToAlgorithmTypeEnumeration()
             };
         }
 
