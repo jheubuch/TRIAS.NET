@@ -2,6 +2,7 @@
 using TRIAS.NET.Models.Trias;
 using TRIAS.NET.Models;
 using DateTime = System.DateTime;
+using TRIAS.NET.WebAPI.Helper;
 
 namespace TRIAS.NET.WebAPI.Services;
 
@@ -117,6 +118,11 @@ public class BoardService : TriasHttpService<StopEventRequestStructure, StopEven
         }
 
         var response = await Request(request, cancellationToken);
+
+        if (response.ErrorMessage != null && response.ErrorMessage.Count > 0)
+        {
+            throw new TriasException(400, string.Join(", ", response.ErrorMessage.Select(e => e.Text.First().Text)));
+        }
 
         return response.StopEventResult.Select(r => r.ToBoardItem(stopEventType)).ToList();
     }

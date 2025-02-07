@@ -6,6 +6,7 @@ namespace TRIAS.NET.WebAPI.Services;
 public interface IJourneyService
 {
     public Task<Journey> GetJourney(string journeyRef, string operatingDayRef, CancellationToken cancellationToken);
+    public Task PlanJourney(string fromStopRef, string toStopRef, CancellationToken cancellationToken);
 }
 
 public class JourneyService : TriasHttpService<TripInfoRequestStructure, TripInfoResponseStructure>, IJourneyService
@@ -25,5 +26,10 @@ public class JourneyService : TriasHttpService<TripInfoRequestStructure, TripInf
         };
         var response = await Request(request, cancellationToken);
         return response.TripInfoResult.ToJourney();
+    }
+
+    public Task PlanJourney(string fromStopRef, string toStopRef, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
     }
 }
